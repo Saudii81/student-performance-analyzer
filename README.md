@@ -20,3 +20,10 @@ See folder layout above.
 
 ```bash
 python main.py
+
+## What I Learned
+
+- Writing modular Python code
+- Handling edge cases
+- Unit testing with pytest
+- Debugging import issues

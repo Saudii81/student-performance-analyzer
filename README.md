@@ -19,7 +19,8 @@ See folder layout above.
 ## Run the App
 
 ```bash
-python main.py
+python main.py 
+```
 
 ## What I Learned
 

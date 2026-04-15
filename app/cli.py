@@ -8,8 +8,8 @@ def run_cli(students):
         print(result["error"])
         return
 
-    print("\n📊 Student Performance Summary")
-    print("--------------------------------")
+    print("Student Performance Summary")
+
 
     print(f"Average Score: {result['average']}")
     print(f"Highest Score: {result['highest']}")
@@ -17,7 +17,7 @@ def run_cli(students):
     print(f"Best Student(s): {', '.join(result['best_students'])}")
     print(f"Pass Rate: {result['pass_rate']}%")
 
-    print("\nStudent Grades")
+    print("Student Grades")
 
     for name, score in students.items():
         grade = assign_grade(score)

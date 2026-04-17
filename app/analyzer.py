@@ -11,7 +11,7 @@ def analyze_students(students):
 
     best_students = [name for name, score in students.items() if score == highest]
 
-    
+    # Calculate pass rate
     passed = [s for s in scores if s >= 50]
     pass_rate = (len(passed) / len(scores)) * 100
 

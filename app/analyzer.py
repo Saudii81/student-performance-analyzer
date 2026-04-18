@@ -4,6 +4,7 @@ def analyze_students(students):
 
     scores = list(students.values())
 
+    
     average = sum(scores) / len(scores)
     highest = max(scores)
     lowest = min(scores)

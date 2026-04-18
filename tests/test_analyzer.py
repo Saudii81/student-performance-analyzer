@@ -4,7 +4,7 @@ def test_empty_input():
     result = analyze_students({})
     assert "error" in result
 
-
+# test case for all students passing
 def test_all_pass():
     students = {"A": 70, "B": 80}
     result = analyze_students(students)

@@ -32,5 +32,7 @@ def assign_grade(score):
         return "C"
     elif score >= 45:
         return "D"
+    elif score >= 40:
+        return "E"  
     else:
         return "F"

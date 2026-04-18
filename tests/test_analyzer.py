@@ -1,5 +1,5 @@
 from app.analyzer import analyze_students
-
+# test case for empty inputs
 def test_empty_input():
     result = analyze_students({})
     assert "error" in result

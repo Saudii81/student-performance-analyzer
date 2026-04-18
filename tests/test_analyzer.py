@@ -10,7 +10,7 @@ def test_all_pass():
     result = analyze_students(students)
     assert result["pass_rate"] == 100.0
 
-
+# test case for all students failing 
 def test_all_fail():
     students = {"A": 20, "B": 30}
     result = analyze_students(students)

@@ -1,0 +1,146 @@
+"""
+ML Model for Student Performance Analysis
+Uses scikit-learn to:
+- Predict if a student is at risk of failing
+- Cluster students into performance tiers
+- Predict expected grade from partial info
+"""
+
+import json
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+
+class StudentMLModel:
+    def __init__(self):
+        self.risk_model = LogisticRegression()
+        self.cluster_model = KMeans(n_clusters=3, random_state=42, n_init=10)
+        self.scaler = StandardScaler()
+        self.is_trained = False
+
+    def _score_to_features(self, score):
+        """Convert a raw score into a feature vector."""
+        return [
+            score,
+            score ** 2,           # squared (captures non-linearity)
+            1 if score >= 50 else 0,  # pass/fail threshold
+            score / 100.0,        # normalized score
+        ]
+
+    def train(self, students: dict):
+        """Train on a dict of {name: score}."""
+        if len(students) < 3:
+            print("[ML] Not enough data to train (need at least 3 students).")
+            return False
+
+        scores = list(students.values())
+        X = np.array([self._score_to_features(s) for s in scores])
+        y = np.array([0 if s >= 50 else 1 for s in scores])  # 1 = at risk
+
+        # Risk model — handle case where only one class exists
+        if len(set(y)) > 1:
+            self.risk_model.fit(X, y)
+        else:
+            self.risk_model = None  # Can't train binary classifier on one class
+
+        # Clustering (always works)
+        self.cluster_model.fit(X)
+        self.is_trained = True
+        print(f"[ML] Model trained on {len(scores)} students.")
+        return True
+
+    def predict_risk(self, score: float) -> dict:
+        """Return risk probability for a given score."""
+        if not self.is_trained or self.risk_model is None:
+            # Fallback rule-based risk
+            risk = max(0.0, min(1.0, (50 - score) / 50)) if score < 50 else 0.0
+            return {
+                "at_risk": score < 50,
+                "risk_probability": round(risk, 2),
+                "method": "rule-based (not enough training data)",
+            }
+        features = np.array([self._score_to_features(score)])
+        prob = self.risk_model.predict_proba(features)[0][1]
+        return {
+            "at_risk": bool(prob >= 0.5),
+            "risk_probability": round(float(prob), 2),
+            "method": "logistic-regression",
+        }
+
+    def get_cluster_label(self, score: float) -> str:
+        """Return performance tier: High / Mid / Low."""
+        if not self.is_trained:
+            if score >= 70:
+                return "High Performer"
+            elif score >= 50:
+                return "Mid Performer"
+            return "Low Performer"
+
+        features = np.array([self._score_to_features(score)])
+        cluster = self.cluster_model.predict(features)[0]
+
+        # Map cluster IDs to readable labels by centroid score
+        centroids = self.cluster_model.cluster_centers_[:, 0]  # raw score axis
+        sorted_ids = np.argsort(centroids)  # ascending
+        tier_map = {sorted_ids[0]: "Low Performer",
+                    sorted_ids[1]: "Mid Performer",
+                    sorted_ids[2]: "High Performer"}
+        return tier_map[cluster]
+
+    def analyze_all(self, students: dict) -> list:
+        """Return per-student ML analysis."""
+        results = []
+        for name, score in students.items():
+            risk = self.predict_risk(score)
+            tier = self.get_cluster_label(score)
+            results.append({
+                "name": name,
+                "score": score,
+                "tier": tier,
+                "at_risk": risk["at_risk"],
+                "risk_probability": risk["risk_probability"],
+                "recommendation": self._recommend(score, risk["at_risk"]),
+            })
+        return sorted(results, key=lambda x: x["score"], reverse=True)
+
+    def _recommend(self, score, at_risk):
+        if score >= 80:
+            return "Excellent — consider advanced challenges."
+        elif score >= 70:
+            return "Good performance — maintain consistency."
+        elif score >= 60:
+            return "Solid — focus on weak areas to push higher."
+        elif score >= 50:
+            return "Passing — needs targeted support to improve."
+        elif score >= 40:
+            return "At risk — urgent intervention recommended."
+        else:
+            return "Critical — intensive support needed immediately."
+
+
+def run_ml_analysis(students: dict) -> dict:
+    """Entry point: train + analyze a student dict."""
+    model = StudentMLModel()
+    model.train(students)
+    per_student = model.analyze_all(students)
+
+    tier_counts = {"High Performer": 0, "Mid Performer": 0, "Low Performer": 0}
+    for s in per_student:
+        tier_counts[s["tier"]] += 1
+
+    return {
+        "per_student": per_student,
+        "tier_summary": tier_counts,
+        "at_risk_count": sum(1 for s in per_student if s["at_risk"]),
+    }
+
+
+if __name__ == "__main__":
+    # Demo
+    students = {"Ali": 78, "Zainab": 45, "Musa": 88, "Fatima": 67, "John": 30}
+    result = run_ml_analysis(students)
+    print(json.dumps(result, indent=2))

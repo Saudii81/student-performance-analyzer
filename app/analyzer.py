@@ -3,7 +3,8 @@ def analyze_students(students):
         return {"error": "No student data provided"}
 
     scores = list(students.values())
-    #
+    
+    # Calculate statistics
     average = sum(scores) / len(scores)
     highest = max(scores)
     lowest = min(scores)

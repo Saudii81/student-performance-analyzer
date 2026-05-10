@@ -113,9 +113,9 @@ class StudentMLModel:
         elif score >= 70:
             return "Good performance — maintain consistency."
         elif score >= 60:
-            return "Solid — focus on weak areas to push higher."
+            return "Solid - focus on weak areas to push higher."
         elif score >= 50:
-            return "Passing — needs targeted support to improve."
+            return "Passing - needs targeted support to improve."
         elif score >= 40:
             return "At risk - urgent intervention recommended."
         else:

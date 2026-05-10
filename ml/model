@@ -117,9 +117,9 @@ class StudentMLModel:
         elif score >= 50:
             return "Passing — needs targeted support to improve."
         elif score >= 40:
-            return "At risk — urgent intervention recommended."
+            return "At risk - urgent intervention recommended."
         else:
-            return "Critical — intensive support needed immediately."
+            return "Critical - intensive support needed immediately."
 
 
 def run_ml_analysis(students: dict) -> dict:

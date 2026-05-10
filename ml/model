@@ -109,7 +109,7 @@ class StudentMLModel:
 
     def _recommend(self, score, at_risk):
         if score >= 80:
-            return "Excellent — consider advanced challenges."
+            return "Excellent - consider advanced challenges."
         elif score >= 70:
             return "Good performance - maintain consistency."
         elif score >= 60:
